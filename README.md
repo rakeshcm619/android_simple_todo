@@ -1,4 +1,4 @@
 android_dev
 ===========
 
-all android work
+first android project
