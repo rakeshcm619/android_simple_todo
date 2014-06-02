@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -22,7 +24,7 @@ public class TodoActivity extends Activity {
 	ArrayList<String> items;
 	ArrayAdapter<String> itemsAdapter;
 	ListView itemsList;
-	
+	private final int EDIT_REQUEST_CODE = 33;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class TodoActivity extends Activity {
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
         itemsList.setAdapter(itemsAdapter);
         setupListViewListener();
+        setupEditListViewListener();
         
     }
 
@@ -51,14 +54,49 @@ public class TodoActivity extends Activity {
 		});
     }
     
-    private void readItems() {
+    private void setupEditListViewListener() {
+    	itemsList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Intent i = new Intent(TodoActivity.this, EditItemActivity.class);
+				// could have passed the select item string and pass back edited string with position in onActicityResult()
+				// But it works only for string. If we need bigger things, than read and write file in new activity. 
+				i.putExtra("itemPosition", position);
+				startActivityForResult(i, EDIT_REQUEST_CODE);
+			}
+		});
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	// EDIT_REQUEST_CODE is defined above
+    	if (requestCode == EDIT_REQUEST_CODE && resultCode == RESULT_OK) {
+    		readItems();
+    		itemsAdapter.notifyDataSetChanged();
+    	}
+    } 
+    
+	private void readItems() {
     	File fileDir = getFilesDir();
     	File todoFile = new File(fileDir, "todo.txt");
     	try {
-    		items = new ArrayList<String>(FileUtils.readLines(todoFile));
+    		if(items == null) {
+    			items = new ArrayList<String>(FileUtils.readLines(todoFile));
+    		}
+    		else {
+    			items.clear();
+    			items.addAll(new ArrayList<String>(FileUtils.readLines(todoFile)));
+    		}
     	}
     	catch (IOException ex) {
-    		items = new ArrayList<String>();
+    		if(items == null) {
+        		items = new ArrayList<String>();
+    		}
+    		else {
+    			items.clear();
+    		}
     		ex.printStackTrace();
     	}
     }

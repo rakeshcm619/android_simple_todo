@@ -5,6 +5,10 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="add_btn">Add</string>
+    <string name="save_btn">Save</string>
+    <string name="cancel_btn">Cancel</string>
     <string name="hint">Enter new item</string>
+    <string name="edit_hint">Edit item</string>
+    <string name="title_activity_edit_item">EditItemActivity</string>
 
 </resources>
